@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kayko Receipts</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="https://play-lh.googleusercontent.com/d9nZ-bZrA0p_IXT2OiTQgZVe1R028WOirJ_Mv8mK5OmNu2HqIkEBg_vQlfZMAmJj5A=w240-h480-rw" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            min-height: 100vh;
+            color: #000;
+            max-width: 480px;
+            margin: 0 auto;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .status-bar {
+            display: none;
+        }
+
+        @media (max-width: 480px) {
+            .status-bar {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 8px 20px;
+                background: #fff;
+                font-weight: 600;
+                font-size: 17px;
+            }
+        }
+
+        .status-left {
+            font-weight: 600;
+        }
+
+        .status-right {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .signal-bars {
+            display: flex;
+            gap: 2px;
+        }
+
+        .bar {
+            width: 3px;
+            background: #000;
+            border-radius: 1px;
+        }
+
+        .bar:nth-child(1) { height: 4px; }
+        .bar:nth-child(2) { height: 6px; }
+        .bar:nth-child(3) { height: 8px; }
+        .bar:nth-child(4) { height: 10px; }
+
+        .wifi {
+            width: 15px;
+            height: 12px;
+            background: #000;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.07 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z'/%3E%3C/svg%3E") no-repeat;
+            mask-size: contain;
+        }
+
+        .battery {
+            width: 25px;
+            height: 13px;
+            border: 1px solid #000;
+            border-radius: 3px;
+            position: relative;
+        }
+
+        .battery::after {
+            content: '';
+            position: absolute;
+            right: -3px;
+            top: 4px;
+            width: 2px;
+            height: 5px;
+            background: #000;
+            border-radius: 0 1px 1px 0;
+        }
+
+        .battery-fill {
+            width: 90%;
+            height: 100%;
+            background: #000;
+            border-radius: 2px;
+        }
+
+        .header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px 20px 30px;
+            background: #fff;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .header-logo-img {
+            width: 135px;
+            height: auto;
+            margin: 0 auto 18px auto;
+            display: block;
+        }
+
+        .header-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 0;
+            margin-top: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .header-subtitle {
+            color: #666;
+            font-size: 16px;
+            margin: 12px 0 0 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 30px 20px 20px;
+            }
+            .header-title {
+                font-size: 28px;
+            }
+        }
+
+        .receipts-section {
+            padding: 30px 20px 40px;
+        }
+
+        @media (max-width: 480px) {
+            .receipts-section {
+                padding: 20px 20px 40px;
+            }
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .receipt-item {
+            background: #fff;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            position: relative;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .receipt-item:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 480px) {
+            .receipt-item {
+                padding: 16px;
+            }
+        }
+
+        .company-logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+            color: #fff;
+            position: relative;
+        }
+
+        .eco-badge {
+            position: absolute;
+            bottom: -4px;
+            right: -4px;
+            width: 20px;
+            height: 20px;
+            background: #4caf50;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            border: 2px solid #fff;
+        }
+
+        .receipt-info {
+            flex: 1;
+        }
+
+        .company-name {
+            font-size: 17px;
+            font-weight: 600;
+            color: #000;
+            margin-bottom: 2px;
+        }
+
+        .receipt-date {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .receipt-amount {
+            font-size: 17px;
+            font-weight: 600;
+            color: #000;
+        }
+
+        .chevron {
+            color: #c7c7cc;
+            font-size: 18px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: #fff;
+            border-radius: 16px;
+            padding: 30px;
+            width: 100%;
+            max-width: 440px;
+        }
+
+        @media (max-width: 480px) {
+            .modal {
+                padding: 20px;
+            }
+            
+            .modal-content {
+                padding: 20px;
+                max-width: 100%;
+            }
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #000;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            font-size: 16px;
+            background: #f9fafb;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #6366f1;
+            background: #fff;
+        }
+
+        .form-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-cancel {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .btn-save {
+            background: #6366f1;
+            color: #fff;
+        }
+
+        /* Company logo colors */
+        .simba { background: #ff6b35; }
+        .nakumatt { background: #1976d2; }
+        .utc { background: #4caf50; }
+        .bourbon { background: #8d4004; }
+        .mtn { background: #ffcc02; color: #000; }
+        .engen { background: #0066cc; }
+        .heaven { background: #9c27b0; }
+        .serena { background: #1a237e; }
+
+        .details-drawer {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: -100%;
+            background: #fff;
+            box-shadow: 0 -4px 24px rgba(0,0,0,0.18);
+            border-radius: 18px 18px 0 0;
+            z-index: 2000;
+            transition: bottom 0.35s cubic-bezier(.4,1.3,.5,1);
+            max-width: 480px;
+            margin: 0 auto;
+            min-height: 220px;
+            padding-bottom: env(safe-area-inset-bottom, 16px);
+        }
+        .details-drawer.open {
+            bottom: 0;
+        }
+        .drawer-content {
+            padding: 32px 24px 24px 24px;
+            position: relative;
+        }
+        .close-btn {
+            position: absolute;
+            right: 18px;
+            top: 18px;
+            font-size: 28px;
+            color: #888;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .drawer-amount {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .drawer-status {
+            display: inline-block;
+            background: #e6f7e6;
+            color: #27ae60;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 6px;
+            padding: 2px 12px;
+            margin-left: 8px;
+        }
+        .drawer-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 24px;
+            margin-bottom: 8px;
+        }
+        .drawer-label {
+            color: #888;
+            font-size: 13px;
+        }
+        .drawer-value {
+            font-size: 15px;
+            font-weight: 500;
+        }
+        .drawer-products {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+        .drawer-products li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 15px;
+        }
+        .drawer-products li:last-child {
+            border-bottom: none;
+        }
+        .drawer-qty-pill {
+            display: inline-block;
+            min-width: 24px;
+            padding: 2px 8px;
+            background: #f3f4f6;
+            color: #888;
+            border-radius: 12px;
+            font-size: 13px;
+            text-align: center;
+            margin-right: 8px;
+        }
+        .drawer-product-name {
+            flex: 1;
+            color: #222;
+            font-weight: 500;
+        }
+        .drawer-product-amount {
+            color: #222;
+            font-weight: 600;
+            margin-left: 12px;
+        }
+        .drawer-summary {
+            margin-top: 18px;
+            font-size: 15px;
+        }
+        .drawer-summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+        .drawer-summary-total {
+            font-size: 26px;
+            font-weight: 700;
+            color: #222;
+            margin-top: 16px;
+            margin-bottom: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .drawer-summary-divider {
+            border: none;
+            border-top: 2px solid #eee;
+            margin: 18px 0 12px 0;
+        }
+        .drawer-billing-section {
+            margin-bottom: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .drawer-billing-title {
+            color: #888;
+            font-size: 14px;
+            font-weight: 500;
+            text-align: left;
+            flex: 1;
+        }
+        .drawer-billing-value {
+            font-size: 15px;
+            font-weight: 500;
+            text-align: right;
+            flex: 1;
+            color: #222;
+        }
+        .drawer-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        .drawer-btn {
+            flex: 1;
+            padding: 12px 0 8px 0;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            background: #f3f4f6;
+            color: #374151;
+            transition: background 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            min-width: 0;
+        }
+        .drawer-btn img,
+        .drawer-btn-icon svg {
+            width: 32px;
+            height: 32px;
+            margin-bottom: 6px;
+            display: block;
+        }
+        .drawer-btn-label {
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 2px;
+            color: inherit;
+        }
+        .drawer-btn.primary {
+            background: #6366f1;
+            color: #fff;
+        }
+        .drawer-logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20px;
+            color: #fff;
+            margin: 0 auto 12px auto;
+            position: relative;
+        }
+        .drawer-eco-badge {
+            position: absolute;
+            bottom: -4px;
+            right: -4px;
+            width: 20px;
+            height: 20px;
+            background: #4caf50;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            border: 2px solid #fff;
+        }
+        .collapsible-section {
+            border-radius: 10px;
+            margin-bottom: 18px;
+            background: #fff;
+            box-shadow: none;
+        }
+        .collapsible-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            padding: 0 0 8px 0;
+        }
+        .collapsible-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .collapsible-chevron {
+            font-size: 18px;
+            color: #888;
+            transition: transform 0.2s;
+        }
+        .collapsible-chevron.collapsed {
+            transform: rotate(-90deg);
+        }
+        .drawer-billing-section {
+            margin-bottom: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 1px solid #f0f0f0;
+            padding: 8px 0;
+        }
+        .drawer-billing-section:last-child {
+            border-bottom: none;
+        }
+        .drawer-header {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+        .drawer-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .drawer-header-business-block {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .drawer-header-business {
+            font-size: 22px;
+            font-weight: 700;
+            color: #222;
+        }
+        .drawer-header-meta {
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .drawer-header-receipt {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 0;
+        }
+        .drawer-header-status {
+            display: inline-block;
+            background: #e6f7e6;
+            color: #27ae60;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 6px;
+            padding: 2px 12px;
+            margin-bottom: 0;
+        }
+        .drawer-header-date {
+            font-size: 13px;
+            color: #888;
+        }
+        .drawer-sdc-section {
+            margin-top: 24px;
+            padding: 16px 0 0 0;
+            border-top: 1px solid #eee;
+            text-align: center;
+            font-size: 14px;
+        }
+        .drawer-sdc-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #222;
+        }
+        .drawer-sdc-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            margin-bottom: 2px;
+            text-align: left;
+        }
+        .drawer-sdc-label {
+            color: #888;
+            text-align: left;
+        }
+        .drawer-sdc-value {
+            color: #222;
+            font-weight: 500;
+            text-align: right;
+        }
+        .drawer-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        .drawer-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            background: #f3f4f6;
+            color: #374151;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .drawer-btn.whatsapp {
+            background: #25d366;
+            color: #fff;
+        }
+        .drawer-btn.download {
+            background: #2563eb;
+            color: #fff;
+        }
+        .drawer-btn.print {
+            background: #f59e42;
+            color: #fff;
+        }
+        .drawer-btn.share {
+            background: #a259e6;
+            color: #fff;
+        }
+        .drawer-btn.primary {
+            background: #6366f1;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <!-- Status Bar -->
+    <div class="status-bar">
+        <div class="status-left">23:13</div>
+        <div class="status-right">
+            <div class="signal-bars">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+            <div class="wifi"></div>
+            <div class="battery">
+                <div class="battery-fill"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-MScxWHbRh72ExiCwjk1wjDAyebj9O4BCOA&s" alt="Kayko Logo" class="header-logo-img" />
+        <div class="header-title">My Receipts</div>
+        <div class="header-subtitle">Track and manage all your purchases</div>
+    </div>
+
+    <!-- Receipts Section -->
+    <div class="receipts-section">
+        <div id="receipts-container">
+            <!-- Receipts will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Home Indicator -->
+    <div class="home-indicator"></div>
+
+    <!-- Add Receipt Modal -->
+    <div id="receiptModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Add New Receipt</h3>
+                <p style="color: #666; font-size: 14px;">Scan or manually add your receipt</p>
+            </div>
+            <form id="receiptForm">
+                <div class="form-group">
+                    <label class="form-label">Store Name</label>
+                    <input type="text" class="form-input" id="storeName" placeholder="Enter store name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Amount</label>
+                    <input type="number" class="form-input" id="amount" placeholder="0.00" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Date</label>
+                    <input type="date" class="form-input" id="date" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <select class="form-input" id="category" required>
+                        <option value="">Select category</option>
+                        <option value="groceries">Groceries</option>
+                        <option value="restaurant">Restaurant</option>
+                        <option value="retail">Retail</option>
+                        <option value="gas">Gas Station</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-buttons">
+                    <button type="button" class="btn btn-cancel" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-save">Save Receipt</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="detailsDrawer" class="details-drawer">
+        <div class="drawer-content">
+            <span class="close-btn" onclick="closeDrawer()">&times;</span>
+            <div id="drawerDetails"></div>
+        </div>
+    </div>
+
+    <script>
+        let receipts = [
+            {
+                id: 1,
+                company: "Top Loaf Shop Ltd.",
+                date: "Jun 28th, 2025",
+                amount: 6500,
+                currency: "RWF",
+                receiptNumber: "TLS-1001",
+                logo: "toploafshop",
+                items: [
+                    { name: "Bread", qty: 2, price: 1200 },
+                    { name: "Croissant", qty: 3, price: 900 },
+                    { name: "Baguette", qty: 1, price: 1000 },
+                    { name: "Sourdough", qty: 1, price: 1500 },
+                    { name: "Muffin", qty: 2, price: 900 }
+                ]
+            },
+            {
+                id: 2,
+                company: "Eden Coffee",
+                date: "Jun 27th, 2025",
+                amount: 8500,
+                currency: "RWF",
+                receiptNumber: "EDC-2002",
+                logo: "edencoffee",
+                items: [
+                    { name: "Espresso", qty: 2, price: 800 },
+                    { name: "Latte", qty: 1, price: 1200 },
+                    { name: "Cappuccino", qty: 1, price: 1100 },
+                    { name: "Americano", qty: 1, price: 900 },
+                    { name: "Mocha", qty: 1, price: 1300 }
+                ]
+            },
+            {
+                id: 3,
+                company: "Best Bargaining Ltd.",
+                date: "Jun 26th, 2025",
+                amount: 9500,
+                currency: "RWF",
+                receiptNumber: "BBL-3003",
+                logo: "bestbargaining",
+                items: [
+                    { name: "Rice", qty: 2, price: 2000 },
+                    { name: "Beans", qty: 1, price: 1500 },
+                    { name: "Sugar", qty: 1, price: 1200 },
+                    { name: "Salt", qty: 1, price: 500 },
+                    { name: "Oil", qty: 1, price: 1800 }
+                ]
+            },
+            {
+                id: 4,
+                company: "Prime",
+                date: "Jun 25th, 2025",
+                amount: 12000,
+                currency: "RWF",
+                receiptNumber: "PRM-4004",
+                logo: "prime",
+                items: [
+                    { name: "Steak", qty: 1, price: 5000 },
+                    { name: "Salad", qty: 2, price: 2000 },
+                    { name: "Soup", qty: 1, price: 1500 },
+                    { name: "Juice", qty: 2, price: 1000 },
+                    { name: "Dessert", qty: 1, price: 2500 }
+                ]
+            },
+            {
+                id: 5,
+                company: "Dinekagas Ltd",
+                date: "Jun 24th, 2025",
+                amount: 18000,
+                currency: "RWF",
+                receiptNumber: "DKG-5005",
+                logo: "dinekagas",
+                items: [
+                    { name: "Gas cylinder", qty: 1, price: 12000 },
+                    { name: "Regulator", qty: 1, price: 3000 },
+                    { name: "Hose", qty: 1, price: 1500 },
+                    { name: "Lighter", qty: 1, price: 800 },
+                    { name: "Delivery fee", qty: 1, price: 700 }
+                ]
+            },
+            {
+                id: 6,
+                company: "Yeet Coffee & More",
+                date: "Jun 23rd, 2025",
+                amount: 7000,
+                currency: "RWF",
+                receiptNumber: "YCM-6006",
+                logo: "yeetcoffee",
+                items: [
+                    { name: "Flat white", qty: 1, price: 1200 },
+                    { name: "Iced coffee", qty: 1, price: 1300 },
+                    { name: "Brownie", qty: 2, price: 1800 },
+                    { name: "Bagel", qty: 1, price: 1000 },
+                    { name: "Tea", qty: 2, price: 1700 }
+                ]
+            },
+            {
+                id: 7,
+                company: "Rainbow Hotel",
+                date: "Jun 22nd, 2025",
+                amount: 45000,
+                currency: "RWF",
+                receiptNumber: "RBH-7007",
+                logo: "rainbowhotel",
+                items: [
+                    { name: "Room", qty: 2, price: 30000 },
+                    { name: "Breakfast", qty: 2, price: 4000 },
+                    { name: "Laundry", qty: 1, price: 2000 },
+                    { name: "Spa", qty: 1, price: 5000 },
+                    { name: "Parking", qty: 1, price: 4000 }
+                ]
+            },
+            {
+                id: 8,
+                company: "Red Ikirwa Flavours Ltd",
+                date: "Jun 21st, 2025",
+                amount: 11000,
+                currency: "RWF",
+                receiptNumber: "RIF-8008",
+                logo: "redikirwa",
+                items: [
+                    { name: "Chicken wings", qty: 1, price: 3500 },
+                    { name: "Fries", qty: 2, price: 2000 },
+                    { name: "Burger", qty: 1, price: 3000 },
+                    { name: "Soda", qty: 2, price: 1200 },
+                    { name: "Salad", qty: 1, price: 1300 }
+                ]
+            },
+            {
+                id: 9,
+                company: "Pastel Glace",
+                date: "Jun 20th, 2025",
+                amount: 6000,
+                currency: "RWF",
+                receiptNumber: "PGL-9009",
+                logo: "pastelglace",
+                items: [
+                    { name: "Ice cream", qty: 2, price: 2000 },
+                    { name: "Sorbet", qty: 1, price: 1000 },
+                    { name: "Cone", qty: 2, price: 800 },
+                    { name: "Sundae", qty: 1, price: 1200 },
+                    { name: "Milkshake", qty: 1, price: 1000 }
+                ]
+            },
+            {
+                id: 10,
+                company: "Blueplates Ltd",
+                date: "Jun 19th, 2025",
+                amount: 9500,
+                currency: "RWF",
+                receiptNumber: "BPL-1010",
+                logo: "blueplates",
+                items: [
+                    { name: "Pasta", qty: 1, price: 2000 },
+                    { name: "Pizza", qty: 1, price: 2500 },
+                    { name: "Salad", qty: 1, price: 1500 },
+                    { name: "Breadsticks", qty: 2, price: 1000 },
+                    { name: "Lemonade", qty: 2, price: 2500 }
+                ]
+            },
+            {
+                id: 11,
+                company: "Jungle Grillz",
+                date: "Jun 18th, 2025",
+                amount: 12000,
+                currency: "RWF",
+                receiptNumber: "JGZ-1111",
+                logo: "junglegrillz",
+                items: [
+                    { name: "Grilled chicken", qty: 1, price: 4000 },
+                    { name: "Ribs", qty: 1, price: 3500 },
+                    { name: "Corn", qty: 2, price: 1200 },
+                    { name: "Coleslaw", qty: 1, price: 1000 },
+                    { name: "BBQ sauce", qty: 1, price: 2300 }
+                ]
+            },
+            {
+                id: 12,
+                company: "Europa Food Mart Limited",
+                date: "Jun 17th, 2025",
+                amount: 8000,
+                currency: "RWF",
+                receiptNumber: "EFM-1212",
+                logo: "europafoodmart",
+                items: [
+                    { name: "Milk", qty: 2, price: 1200 },
+                    { name: "Eggs", qty: 1, price: 800 },
+                    { name: "Cheese", qty: 1, price: 1500 },
+                    { name: "Butter", qty: 1, price: 1000 },
+                    { name: "Yogurt", qty: 2, price: 1500 }
+                ]
+            },
+            {
+                id: 13,
+                company: "Fabcafe Ltd",
+                date: "Jun 16th, 2025",
+                amount: 7000,
+                currency: "RWF",
+                receiptNumber: "FCL-1313",
+                logo: "fabcafe",
+                items: [
+                    { name: "Cappuccino", qty: 1, price: 1200 },
+                    { name: "Sandwich", qty: 2, price: 2000 },
+                    { name: "Cookie", qty: 3, price: 900 },
+                    { name: "Tea", qty: 2, price: 1200 },
+                    { name: "Juice", qty: 1, price: 1700 }
+                ]
+            },
+            {
+                id: 14,
+                company: "Mulax Cafe Ltd",
+                date: "Jun 15th, 2025",
+                amount: 6500,
+                currency: "RWF",
+                receiptNumber: "MCL-1414",
+                logo: "mulaxcafe",
+                items: [
+                    { name: "Espresso", qty: 1, price: 900 },
+                    { name: "Croissant", qty: 2, price: 1200 },
+                    { name: "Muffin", qty: 2, price: 1000 },
+                    { name: "Tea", qty: 1, price: 800 },
+                    { name: "Smoothie", qty: 1, price: 1600 }
+                ]
+            },
+            {
+                id: 15,
+                company: "Katina's Services Ltd",
+                date: "Jun 14th, 2025",
+                amount: 9000,
+                currency: "RWF",
+                receiptNumber: "KSL-1515",
+                logo: "katinaservices",
+                items: [
+                    { name: "Cleaning", qty: 1, price: 3000 },
+                    { name: "Laundry", qty: 1, price: 2000 },
+                    { name: "Ironing", qty: 1, price: 1500 },
+                    { name: "Delivery", qty: 1, price: 1000 },
+                    { name: "Supplies", qty: 1, price: 1500 }
+                ]
+            },
+            {
+                id: 16,
+                company: "Iwacu Sun Set",
+                date: "Jun 13th, 2025",
+                amount: 11000,
+                currency: "RWF",
+                receiptNumber: "ISS-1616",
+                logo: "iwacusunset",
+                items: [
+                    { name: "Cocktail", qty: 2, price: 3000 },
+                    { name: "Beer", qty: 3, price: 3000 },
+                    { name: "Wine", qty: 1, price: 2500 },
+                    { name: "Chips", qty: 2, price: 1500 },
+                    { name: "Nuts", qty: 1, price: 1500 }
+                ]
+            }
+        ];
+
+        function getCompanyInitials(company) {
+            if (!company) return '';
+            // Get first letter of up to two words
+            const words = company.split(' ').filter(w => w.length > 0);
+            if (words.length === 1) return words[0][0].toUpperCase();
+            return (words[0][0] + words[1][0]).toUpperCase();
+        }
+
+        function getColorForBusiness(name) {
+            // Use a palette of nice colors
+            const colors = [
+                '#6366f1', '#f59e42', '#10b981', '#ef4444', '#fbbf24', '#3b82f6', '#a259e6', '#e11d48',
+                '#14b8a6', '#f472b6', '#facc15', '#0ea5e9', '#8b5cf6', '#22d3ee', '#f87171', '#4ade80'
+            ];
+            // Simple hash to pick a color
+            let hash = 0;
+            for (let i = 0; i < name.length; i++) {
+                hash = name.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            return colors[Math.abs(hash) % colors.length];
+        }
+
+        function renderReceipts() {
+            const container = document.getElementById('receipts-container');
+            if (!container) return;
+            
+            container.innerHTML = receipts.map(receipt => {
+                if (!receipt || !receipt.company) return '';
+                // Calculate subtotal from items
+                let subtotal = 0;
+                if (receipt.items && receipt.items.length) {
+                    receipt.items.forEach(item => {
+                        subtotal += item.price;
+                    });
+                }
+                const tax = Math.round(subtotal * 0.10);
+                const total = subtotal + tax;
+                return `
+                    <div class="receipt-item" onclick="showDrawer(${receipt.id})">
+                        <div class="company-logo" style="background: ${getColorForBusiness(receipt.company)};">
+                            ${getCompanyInitials(receipt.company)}
+                            <div class="eco-badge">🌱</div>
+                        </div>
+                        <div class="receipt-info">
+                            <div class="company-name">${receipt.company}</div>
+                            <div class="receipt-date">${receipt.date}</div>
+                            <div style="font-size: 12px; color: #999; margin-top: 2px;">${receipt.receiptNumber}</div>
+                        </div>
+                        <div class="receipt-amount">${total.toLocaleString()} ${receipt.currency || 'RWF'}</div>
+                        <div class="chevron">›</div>
+                    </div>
+                `;
+            }).filter(item => item !== '').join('');
+        }
+
+        function updateStats() {
+            // Stats removed - no longer needed
+        }
+
+        function openModal() {
+            const modal = document.getElementById('receiptModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                const dateInput = document.getElementById('date');
+                if (dateInput) {
+                    dateInput.value = new Date().toISOString().split('T')[0];
+                }
+            }
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('receiptModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+            
+            const form = document.getElementById('receiptForm');
+            if (form) {
+                form.reset();
+            }
+        }
+
+        function showDrawer(id) {
+            const receipt = receipts.find(r => r.id === id);
+            if (!receipt) return;
+
+            // Calculate subtotal, tax, and total from items
+            let subtotal = 0;
+            if (receipt.items && receipt.items.length) {
+                receipt.items.forEach(item => {
+                    subtotal += item.price;
+                });
+            }
+            const tax = Math.round(subtotal * 0.10);
+            const total = subtotal + tax;
+
+            // Build items list HTML (limit to 5)
+            let itemsHtml = '';
+            if (receipt.items && receipt.items.length) {
+                itemsHtml = `
+                    <ul class="drawer-products">
+                        ${receipt.items.slice(0, 5).map(item => `
+                            <li>
+                                <span class="drawer-qty-pill">${item.qty}</span>
+                                <span class="drawer-product-name">${item.name}</span>
+                                <span class="drawer-product-amount">${item.price.toLocaleString()} ${receipt.currency || 'RWF'}</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                `;
+            } else {
+                itemsHtml = `<em>No items listed.</em>`;
+            }
+
+            document.getElementById('drawerDetails').innerHTML = `
+                <div class="drawer-header">
+                    <div class="drawer-header-left">
+                        <div class="drawer-logo" style="background: ${getColorForBusiness(receipt.company)};">
+                            ${getCompanyInitials(receipt.company)}
+                            <div class="drawer-eco-badge">🌱</div>
+                        </div>
+                        <div class="drawer-header-business-block">
+                            <div class="drawer-header-business">${receipt.company}</div>
+                            <div class="drawer-header-meta">
+                                <div class="drawer-header-receipt">No. ${receipt.receiptNumber}</div>
+                                <div class="drawer-header-status">Paid</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-bottom:16px;"></div>
+                <div class="collapsible-section">
+                    <div class="collapsible-header" onclick="toggleDrawerSection('billing')">
+                        <span class="collapsible-title">Details</span>
+                        <span id="chevron-billing" class="collapsible-chevron">&#9660;</span>
+                    </div>
+                    <div id="section-billing">
+                        <div class="drawer-billing-section">
+                            <div class="drawer-billing-title">Payment batch</div>
+                            <div class="drawer-billing-value">July 2023</div>
+                        </div>
+                        <div class="drawer-billing-section">
+                            <div class="drawer-billing-title">Billed to</div>
+                            <div class="drawer-billing-value">Frederic@hotmail.com</div>
+                        </div>
+                        <div class="drawer-billing-section">
+                            <div class="drawer-billing-title">Billing name</div>
+                            <div class="drawer-billing-value">Jhonathan Frederic</div>
+                        </div>
+                        <div class="drawer-billing-section">
+                            <div class="drawer-billing-title">Phone</div>
+                            <div class="drawer-billing-value">+250 788 123 456</div>
+                        </div>
+                        <div class="drawer-billing-section">
+                            <div class="drawer-billing-title">Address</div>
+                            <div class="drawer-billing-value">123 Kigali St, Rwanda</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="collapsible-section">
+                    <div class="collapsible-header" onclick="toggleDrawerSection('products')">
+                        <span class="collapsible-title">Product</span>
+                        <span id="chevron-products" class="collapsible-chevron">&#9660;</span>
+                    </div>
+                    <div id="section-products">
+                        ${itemsHtml}
+                    </div>
+                </div>
+                <div class="drawer-summary">
+                    <div class="drawer-summary-row"><span>Subtotal</span><span>${subtotal.toLocaleString()} ${receipt.currency || 'RWF'}</span></div>
+                    <div class="drawer-summary-row"><span>Tax 10%</span><span>${tax.toLocaleString()} ${receipt.currency || 'RWF'}</span></div>
+                </div>
+                <hr class="drawer-summary-divider" />
+                <div class="drawer-summary-total"><span>Total</span><span>${total.toLocaleString()} ${receipt.currency || 'RWF'}</span></div>
+                <div class="drawer-actions">
+                    <button class="drawer-btn whatsapp">
+                        <span class="drawer-btn-icon" aria-hidden="true">
+                            <!-- Official WhatsApp SVG: white logo on green circle -->
+                            <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <circle cx="16" cy="16" r="16" fill="#22c55e"/>
+                              <path d="M22.2 18.7c-.3-.2-1.7-.8-2-.9-.3-.1-.5-.2-.7.1-.2.3-.7.9-.9 1.2-.2.2-.3.2-.6.1-.3-.1-1.2-.4-2.4-1.4-.9-.8-1.5-1.7-1.7-2-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.1-.2.2-.3.3-.5.1-.2.1-.4 0-.5-.1-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5-.2 0-.4 0-.6 0-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5 0 1.5 1.1 2.9 1.2 3.1.2.2 2.1 3 5 4.1.7.3 1.2.5 1.7.6.7.2 1.3.2 1.8.1.6-.1 1.7-.7 2-1.4.2-.7.2-1.3.2-1.4 0-.1-.2-.2-.5-.3z" fill="#fff"/>
+                            </svg>
+                        </span>
+                        <span class="drawer-btn-label">WhatsApp</span>
+                    </button>
+                    <button class="drawer-btn download" onclick="downloadReceipt()">
+                        <span class="drawer-btn-icon" aria-hidden="true">
+                            <!-- Lucide: Download -->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        </span>
+                        <span class="drawer-btn-label">Download</span>
+                    </button>
+                    <button class="drawer-btn print" onclick="window.print()">
+                        <span class="drawer-btn-icon" aria-hidden="true">
+                            <!-- Lucide: Printer -->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                        </span>
+                        <span class="drawer-btn-label">Print</span>
+                    </button>
+                    <button class="drawer-btn share" onclick="shareReceipt()">
+                        <span class="drawer-btn-icon" aria-hidden="true">
+                            <!-- Lucide: Share2 -->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                        </span>
+                        <span class="drawer-btn-label">Share</span>
+                    </button>
+                </div>
+            `;
+            document.getElementById('detailsDrawer').classList.add('open');
+
+            // Ensure sections are expanded by default
+            document.getElementById('section-billing').style.display = 'block';
+            document.getElementById('chevron-billing').classList.remove('collapsed');
+            document.getElementById('section-products').style.display = 'block';
+            document.getElementById('chevron-products').classList.remove('collapsed');
+        }
+
+        function closeDrawer() {
+            document.getElementById('detailsDrawer').classList.remove('open');
+        }
+
+        // Collapsible section toggle
+        function toggleDrawerSection(section) {
+            const content = document.getElementById('section-' + section);
+            const chevron = document.getElementById('chevron-' + section);
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                chevron.classList.remove('collapsed');
+            } else {
+                content.style.display = 'none';
+                chevron.classList.add('collapsed');
+            }
+        }
+
+        // Initialize
+        renderReceipts();
+    </script>
+</body>
+</html>
